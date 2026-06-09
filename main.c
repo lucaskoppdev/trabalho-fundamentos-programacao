@@ -1,11 +1,16 @@
+//importa as bibliotecas padroes necessarias para o funcionamento do codigo
+//standard input output -> biblioteca para ler entradasa e mandar saidas
 #include <stdio.h>
+//biblioteca para manipular strings (cadeias de caracteres) de maneira mais dinamica
 #include <string.h>
 
-
+//MACROS -> pre-processador vai ler eles, e substituir automaticamente em tempo de pre-processamento
+//Funcionam igual variaveis, mas a nivel de pre-processador
 #define MAX_DISCENTES 100
-#define TOTAL_AULAS   30
+#define TOTAL_AULAS 30
 
-//struct pra cadastrar os discentes
+//a struct cria um tipo de dado novo, que armazena N valores num "mesmo endereco"
+//funciona semelhante a um "formulario", uma unica variavel recebe K parametros
 struct discente {
     int   matricula;
     char  nome[100];
@@ -13,14 +18,19 @@ struct discente {
     float notas[3];
 };
 
-//cria o vetor de para armazenar os discentes
+//Aloca na memoria, N espacos do tipo discente
+//nesse caso, o numero de espeacos alocados é o nosso macro de max discentes, ou seja 100
 struct discente discentes[MAX_DISCENTES];
 
-//variavel que vai armazenar o numero de discentes, durante a exec
+//variavel que vai armazenar o numero de discentes que foram cadastrados em tempo de execucao
+//Ou seja, vai servir como variavel de controle enquanto o codigo roda
 int num_discentes = 0;
 
 
-//funcao para buscar os discentes cadastrados através da matricula
+//funcao para buscar os discentes que ja foram cadastrados, usando como referencial a matricula
+//recebe como parametro a matricula do discente
+//busca dentre os discentes ja cadastrados, e retorna as infos dele caso encontre
+//do contrario, acusa que o discente nao existe e nao retorna nada
 int buscar_por_matricula(int matricula_buscar) {
     for (int i = 0; i < num_discentes; i++) {
         if (discentes[i].matricula == matricula_buscar)
@@ -29,6 +39,8 @@ int buscar_por_matricula(int matricula_buscar) {
     return -1;
 }
 
+//========>FIM DA PARTE DO VITOR<==============
+//========>COMECO DA PARTE DO LUCAS<=========
 
 //lista todos os discentes que ja foram cadastrados
 void listar_discentes(void) {
@@ -127,6 +139,8 @@ void atualizar_notas(void) {
     printf("Notas de \"%s\" atualizadas com sucesso!\n", discentes[idx].nome);
 }
 
+//============>FIM DA PARTE DO LUCAS<=============
+//============> COMECO DA PARTE DO AUGUSTO<=============
 
 //atualizar a frequencia de um discente ja cadastrado
 void atualizar_frequencia(void) {
@@ -190,15 +204,19 @@ void imprimir_relatorio(void) {
     printf("Reprovados por falta (freq < 75%%): %d\n", reprovados_falta);
 }
 
+//==================>FIM DA PARTE DO AUGUSTO<=================
+///=================>ULTIMA PARTE DO VITOR<====================
 
-//Loop Main, com uma interface no Terminal
+//Loop Main do codigo, que vai efetivamente chamar as funcoes
 int main(void) {
 
-
+    //imrpime na tela um bem-vindo, na primeira interacao com o usuario
     printf("==========>Bem-vindo ao Sistema de Gestao Escolar<==========\n");
 
+    //variavel para armazenar qual foi a escolha do usuario
     int opcao;
 
+    //Do while para fazer o loop principal do codigo
     do {
         printf("\n--- Menu Principal ---\n");
         printf("1. Listar discentes\n");
@@ -211,6 +229,8 @@ int main(void) {
         printf("Opcao: ");
         scanf("%d", &opcao);
 
+        //switch case para chamar a funcao correta de acordo com a escolha do usuario
+        //caso uma opcao invalida seja requisitada, executa novamente
         switch (opcao) {
             case 1: listar_discentes();    break;
             case 2: cadastrar_discente();  break;
