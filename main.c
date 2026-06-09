@@ -1,12 +1,11 @@
 #include <stdio.h>
 #include <string.h>
 
+
 #define MAX_DISCENTES 100
 #define TOTAL_AULAS   30
 
-/* ------------------------------------------------------------------ */
-/*  Estrutura de dados                                                  */
-/* ------------------------------------------------------------------ */
+//struct pra cadastrar os discentes
 struct discente {
     int   matricula;
     char  nome[100];
@@ -14,54 +13,49 @@ struct discente {
     float notas[3];
 };
 
-/* ------------------------------------------------------------------ */
-/*  Variáveis globais                                                   */
-/* ------------------------------------------------------------------ */
-struct discente lista[MAX_DISCENTES];
+//cria o vetor de para armazenar os discentes
+struct discente discentes[MAX_DISCENTES];
+
+//variavel que vai armazenar o numero de discentes, durante a exec
 int num_discentes = 0;
 
-/* ------------------------------------------------------------------ */
-/*  Funções auxiliares                                                  */
-/* ------------------------------------------------------------------ */
 
-/* Retorna o índice do discente com a matrícula dada, ou -1 se não
-   encontrado. */
-int buscar_por_matricula(int matricula) {
+//funcao para buscar os discentes cadastrados através da matricula
+int buscar_por_matricula(int matricula_buscar) {
     for (int i = 0; i < num_discentes; i++) {
-        if (lista[i].matricula == matricula)
+        if (discentes[i].matricula == matricula_buscar)
             return i;
     }
     return -1;
 }
 
-/* ------------------------------------------------------------------ */
-/*  1. Listar discentes                                                 */
-/* ------------------------------------------------------------------ */
+
+//lista todos os discentes que ja foram cadastrados
 void listar_discentes(void) {
     if (num_discentes == 0) {
         printf("\nNao existem discentes cadastrados.\n");
         return;
     }
-
+    //formata os dados em formato de tabela, alinhando a esquerda
     printf("\n%-10s %-30s %-12s %-8s %-8s %-8s\n",
            "Matricula", "Nome", "Presencas", "Nota 1", "Nota 2", "Nota 3");
     printf("%s\n", "--------------------------------------------------------------------------");
 
     for (int i = 0; i < num_discentes; i++) {
         printf("%-10d %-30s %-12d %-8.2f %-8.2f %-8.2f\n",
-               lista[i].matricula,
-               lista[i].nome,
-               lista[i].num_presencas,
-               lista[i].notas[0],
-               lista[i].notas[1],
-               lista[i].notas[2]);
+               discentes[i].matricula,
+               discentes[i].nome,
+               discentes[i].num_presencas,
+               discentes[i].notas[0],
+               discentes[i].notas[1],
+               discentes[i].notas[2]);
     }
 }
 
-/* ------------------------------------------------------------------ */
-/*  2. Cadastrar discente                                               */
-/* ------------------------------------------------------------------ */
+
+//funcao para cadastrar os discentes 
 void cadastrar_discente(void) {
+    //estrutura de controle para evitar memory leaks ou out of scope
     if (num_discentes >= MAX_DISCENTES) {
         printf("\nLimite maximo de discentes atingido (%d).\n", MAX_DISCENTES);
         return;
@@ -70,35 +64,49 @@ void cadastrar_discente(void) {
     int matricula;
     char nome[100];
 
-    printf("\nNumero de matricula: ");
+    printf("\nMatricula: ");
     scanf("%d", &matricula);
-    getchar(); /* consome o '\n' residual */
+    
+    //estrutura de controle para mitigar cadastro de matriculas != 0
+    if (matricula <= 0) {
+        printf("Erro: matricula deve ser um numero positivo.\n");
+        return;
+    }
+    getchar(); // tira o '\n' residual
 
+    //busca no banco se a matricula ja pertence a outra pessoa, mitigando duplicatas
     if (buscar_por_matricula(matricula) != -1) {
         printf("Erro: ja existe um discente com a matricula %d.\n", matricula);
         return;
     }
 
+    //nome do discente
     printf("Nome: ");
+
+    //pega o nome do usuario, limitando ao sizeof do nome
     fgets(nome, sizeof(nome), stdin);
-    /* Remove o '\n' inserido pelo fgets */
+
+    //substitui o \n
     nome[strcspn(nome, "\n")] = '\0';
 
-    lista[num_discentes].matricula    = matricula;
-    strcpy(lista[num_discentes].nome, nome);
-    lista[num_discentes].num_presencas = 0;
-    lista[num_discentes].notas[0]     = 0.0f;
-    lista[num_discentes].notas[1]     = 0.0f;
-    lista[num_discentes].notas[2]     = 0.0f;
+    //cadastra o novo discente no "banco"
+    discentes[num_discentes].matricula = matricula;
+    //insere o nome dentro do struct
+    strcpy(discentes[num_discentes].nome, nome);
+    //numero de presencas
+    discentes[num_discentes].num_presencas = 0;
+    
+    //add a nota formato em 1 casa decimal
+    discentes[num_discentes].notas[0] = 0.0f;
+    discentes[num_discentes].notas[1] = 0.0f;
+    discentes[num_discentes].notas[2] = 0.0f;
 
     num_discentes++;
 
     printf("Discente \"%s\" cadastrado com sucesso!\n", nome);
 }
 
-/* ------------------------------------------------------------------ */
-/*  3. Atualizar notas                                                  */
-/* ------------------------------------------------------------------ */
+//modificar os valores da nota de um aluno ja cadastrado
 void atualizar_notas(void) {
     int matricula;
     printf("\nNumero de matricula: ");
@@ -110,18 +118,17 @@ void atualizar_notas(void) {
         return;
     }
 
-    printf("Digite as 3 notas de %s:\n", lista[idx].nome);
+    printf("Digite as 3 notas de %s:\n", discentes[idx].nome);
     for (int i = 0; i < 3; i++) {
         printf("  Nota %d: ", i + 1);
-        scanf("%f", &lista[idx].notas[i]);
+        scanf("%f", &discentes[idx].notas[i]);
     }
 
-    printf("Notas de \"%s\" atualizadas com sucesso!\n", lista[idx].nome);
+    printf("Notas de \"%s\" atualizadas com sucesso!\n", discentes[idx].nome);
 }
 
-/* ------------------------------------------------------------------ */
-/*  4. Atualizar frequência                                             */
-/* ------------------------------------------------------------------ */
+
+//atualizar a frequencia de um discente ja cadastrado
 void atualizar_frequencia(void) {
     int matricula;
     printf("\nNumero de matricula: ");
@@ -133,14 +140,13 @@ void atualizar_frequencia(void) {
         return;
     }
 
-    lista[idx].num_presencas++;
+    discentes[idx].num_presencas++;
     printf("Presenca registrada para \"%s\" (total: %d).\n",
-           lista[idx].nome, lista[idx].num_presencas);
+           discentes[idx].nome, discentes[idx].num_presencas);
 }
 
-/* ------------------------------------------------------------------ */
-/*  5. Remover discente                                                 */
-/* ------------------------------------------------------------------ */
+
+//remove um discente cadastrado do banco de dados
 void remover_discente(void) {
     int matricula;
     printf("\nNumero de matricula: ");
@@ -148,29 +154,28 @@ void remover_discente(void) {
 
     int idx = buscar_por_matricula(matricula);
     if (idx == -1) {
-        /* Não faz nada conforme especificado */
+
         return;
     }
 
-    /* Desloca os elementos seguintes uma posição para a esquerda */
+    //reposicionando os elementos do vetor de discentes depois de remover um deles
     for (int i = idx; i < num_discentes - 1; i++) {
-        lista[i] = lista[i + 1];
+        discentes[i] = discentes[i + 1];
     }
     num_discentes--;
 
     printf("Discente removido com sucesso.\n");
 }
 
-/* ------------------------------------------------------------------ */
-/*  6. Imprimir relatório                                               */
-/* ------------------------------------------------------------------ */
+
+//imprime o relatorio dos aprovados/reprovados por nota e falta
 void imprimir_relatorio(void) {
     int aprovados_nota  = 0;
     int reprovados_falta = 0;
 
     for (int i = 0; i < num_discentes; i++) {
-        float media = (lista[i].notas[0] + lista[i].notas[1] + lista[i].notas[2]) / 3.0f;
-        float frequencia = (lista[i].num_presencas / (float)TOTAL_AULAS) * 100.0f;
+        float media = (discentes[i].notas[0] + discentes[i].notas[1] + discentes[i].notas[2]) / 3.0f;
+        float frequencia = (discentes[i].num_presencas / (float)TOTAL_AULAS) * 100.0f;
 
         if (media >= 7.0f)
             aprovados_nota++;
@@ -185,13 +190,12 @@ void imprimir_relatorio(void) {
     printf("Reprovados por falta (freq < 75%%): %d\n", reprovados_falta);
 }
 
-/* ------------------------------------------------------------------ */
-/*  Menu principal                                                      */
-/* ------------------------------------------------------------------ */
+
+//Loop Main, com uma interface no Terminal
 int main(void) {
-    printf("=========================================\n");
-    printf("   Bem-vindo ao Sistema de Gestao Escolar\n");
-    printf("=========================================\n");
+
+
+    printf("==========>Bem-vindo ao Sistema de Gestao Escolar<==========\n");
 
     int opcao;
 
